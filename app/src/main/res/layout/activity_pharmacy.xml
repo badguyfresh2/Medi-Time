@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- activity_pharmacy.xml -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F7FA"
+    android:orientation="vertical">
+
+    <!-- Simple Toolbar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="#32CD32"
+        android:gravity="center_vertical"
+        android:paddingTop="20dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:elevation="4dp">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="#FFFFFF" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="16dp"
+            android:text="Pharmacy"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:fontFamily="sans-serif-medium" />
+
+    </LinearLayout>
+
+    <!-- Scrollable Body -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Location Banner -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#FFF8E1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="10dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_location_pin"
+                    app:tint="#F59E0B" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Kampala, Central Region"
+                    android:textColor="#1A1A2E"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tvChangeLocation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Change"
+                    android:textColor="#32CD32"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
+
+            <!-- Search + Upload Prescription Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="8dp">
+
+                <!-- Search Input - Simplified -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/search_background"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_search"
+                        app:tint="#9CA3AF" />
+
+                    <EditText
+                        android:id="@+id/etSearch"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:hint="Search medicines..."
+                        android:textSize="14sp"
+                        android:background="@android:color/transparent"
+                        android:inputType="text" />
+                </LinearLayout>
+
+                <!-- Upload Button -->
+                <Button
+                    android:id="@+id/btnUploadPrescription"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:text="📷"
+
+                    android:layout_marginStart="10dp"
+                    android:backgroundTint="#32CD32"
+                    android:textSize="22sp" />
+            </LinearLayout>
+
+            <!-- Upload Prescription Banner - Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="#E8F5E9"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#32CD32"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="14dp">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_prescription"
+                        app:tint="#32CD32" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Have a Prescription?"
+                            android:textColor="#1A1A2E"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Upload &amp; get medicines delivered"
+                            android:textColor="#6B7280"
+                            android:textSize="11sp"
+                            android:layout_marginTop="2dp" />
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btnUpload"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:text="Upload"
+                        android:textSize="12sp"
+                        android:backgroundTint="#32CD32" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Categories -->
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginStart="16dp"-->
+<!--                android:layout_marginBottom="10dp"-->
+<!--                android:text="Categories"-->
+<!--                android:textColor="#1A1A2E"-->
+<!--                android:textSize="16sp"-->
+<!--                android:textStyle="bold" />-->
+
+            <!-- Category Grid -->
+<!--            <GridLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:columnCount="4"-->
+<!--                android:paddingHorizontal="16dp"-->
+<!--                android:paddingBottom="16dp">-->
+
+<!--                &lt;!&ndash; Category Item 1 &ndash;&gt;-->
+<!--                <LinearLayout-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_columnWeight="1"-->
+<!--                    android:gravity="center"-->
+<!--                    android:orientation="vertical"-->
+<!--                    android:padding="6dp"-->
+<!--                    android:clickable="true"-->
+<!--                    android:focusable="true">-->
+
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="52dp"-->
+<!--                        android:layout_height="52dp"-->
+<!--                        android:background="@drawable/bg_rounded_green_light"-->
+<!--                        android:gravity="center">-->
+<!--                        <TextView-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="match_parent"-->
+<!--                            android:text="💊"-->
+<!--                            android:gravity="center"/>-->
+<!--                    </LinearLayout>-->
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginTop="6dp"-->
+<!--                        android:text="Medicines"-->
+<!--                        android:textColor="#1A1A2E"-->
+<!--                        android:textSize="11sp"-->
+<!--                        android:gravity="center" />-->
+<!--                </LinearLayout>-->
+
+<!--                &lt;!&ndash; Category Item 2 &ndash;&gt;-->
+<!--                <LinearLayout-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_columnWeight="1"-->
+<!--                    android:gravity="center"-->
+<!--                    android:orientation="vertical"-->
+<!--                    android:padding="6dp"-->
+<!--                    android:clickable="true"-->
+<!--                    android:focusable="true">-->
+
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="52dp"-->
+<!--                        android:layout_height="52dp"-->
+<!--                        android:background="@drawable/bg_rounded_green_light"-->
+<!--                        android:gravity="center">-->
+<!--                        <ImageView-->
+<!--                            android:layout_width="26dp"-->
+<!--                            android:layout_height="26dp"-->
+<!--                            android:src="@drawable/ic_vitamin"-->
+<!--                            app:tint="#FF5722" />-->
+<!--                    </LinearLayout>-->
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginTop="6dp"-->
+<!--                        android:text="Vitamins"-->
+<!--                        android:textColor="#1A1A2E"-->
+<!--                        android:textSize="11sp"-->
+<!--                        android:gravity="center" />-->
+<!--                </LinearLayout>-->
+
+<!--                &lt;!&ndash; Category Item 3 &ndash;&gt;-->
+<!--                <LinearLayout-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_columnWeight="1"-->
+<!--                    android:gravity="center"-->
+<!--                    android:orientation="vertical"-->
+<!--                    android:padding="6dp"-->
+<!--                    android:clickable="true"-->
+<!--                    android:focusable="true">-->
+
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="52dp"-->
+<!--                        android:layout_height="52dp"-->
+<!--                        android:background="@drawable/bg_rounded_green_light"-->
+<!--                        android:gravity="center">-->
+<!--                        <ImageView-->
+<!--                            android:layout_width="26dp"-->
+<!--                            android:layout_height="26dp"-->
+<!--                            android:src="@drawable/ic_first_aid"-->
+<!--                            app:tint="#CD3232" />-->
+
+<!--                    </LinearLayout>-->
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginTop="6dp"-->
+<!--                        android:text="First Aid"-->
+<!--                        android:textColor="#1A1A2E"-->
+<!--                        android:textSize="11sp"-->
+<!--                        android:gravity="center" />-->
+<!--                </LinearLayout>-->
+
+<!--                &lt;!&ndash; Category Item 4 &ndash;&gt;-->
+<!--                <LinearLayout-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_columnWeight="1"-->
+<!--                    android:gravity="center"-->
+<!--                    android:orientation="vertical"-->
+<!--                    android:padding="6dp"-->
+<!--                    android:clickable="true"-->
+<!--                    android:focusable="true">-->
+
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="52dp"-->
+<!--                        android:layout_height="52dp"-->
+<!--                        android:background="@drawable/bg_rounded_green_light"-->
+<!--                        android:gravity="center">-->
+<!--&lt;!&ndash;                        <ImageView&ndash;&gt;-->
+<!--&lt;!&ndash;                            android:layout_width="26dp"&ndash;&gt;-->
+<!--&lt;!&ndash;                            android:layout_height="26dp"&ndash;&gt;-->
+<!--&lt;!&ndash;                            android:src="@drawable/ic_baby"&ndash;&gt;-->
+<!--&lt;!&ndash;                            app:tint="#32CD32" />&ndash;&gt;-->
+<!--                        <TextView-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="match_parent"-->
+<!--                            android:text="👶"-->
+<!--                            android:gravity="center"/>-->
+<!--                    </LinearLayout>-->
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginTop="6dp"-->
+<!--                        android:text="Baby Care"-->
+<!--                        android:textColor="#1A1A2E"-->
+<!--                        android:textSize="11sp"-->
+<!--                        android:gravity="center" />-->
+<!--                </LinearLayout>-->
+<!--            </GridLayout>-->
+
+            <!-- Nearby Pharmacies Title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="10dp"
+                android:text="Nearby Pharmacies"
+                android:textColor="#1A1A2E"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <!-- Pharmacy Card 1 -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="3dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="14dp"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:background="@drawable/bg_rounded_green_light"
+                        android:gravity="center">
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:src="@drawable/ic_pharmacy_bag"
+                            app:tint="#32CD32" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Kampala Pharmacy Ltd"
+                            android:textColor="#1A1A2E"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0.5 km • Delivers in 30 min"
+                            android:textColor="#6B7280"
+                            android:textSize="12sp"
+                            android:layout_marginTop="2dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="24dp"
+                            android:layout_marginTop="4dp"
+                            android:paddingStart="10dp"
+                            android:paddingEnd="10dp"
+                            android:gravity="center"
+                            android:text="Open Now"
+                            android:textSize="10sp"
+                            android:textColor="#FFFFFF"
+                            android:backgroundTint="#10B981"
+                            android:background="@drawable/chip_background_green" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Pharmacy Card 2 -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="3dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="14dp"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:background="@drawable/bg_rounded_green_light"
+                        android:gravity="center">
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:src="@drawable/ic_pharmacy_bag"
+                            app:tint="#32CD32" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Medipal International Pharmacy"
+                            android:textColor="#1A1A2E"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1.2 km • Delivers in 45 min"
+                            android:textColor="#6B7280"
+                            android:textSize="12sp"
+                            android:layout_marginTop="2dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="24dp"
+                            android:layout_marginTop="4dp"
+                            android:paddingStart="10dp"
+                            android:paddingEnd="10dp"
+                            android:gravity="center"
+                            android:text="Open 24h"
+                            android:textSize="10sp"
+                            android:textColor="#FFFFFF"
+                            android:backgroundTint="#10B981"
+                            android:background="@drawable/chip_background_green" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>
