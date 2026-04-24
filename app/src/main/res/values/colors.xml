@@ -2,4 +2,16 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="text_dark">#1A1A2E</color>
+
+
+        <color name="orange_primary">#F4A623</color>
+        <color name="green_checked">#10B981</color>
+        <color name="light_gray_background">#F9F9F9</color>
+        <color name="dark_text">#1A1A2E</color>
+        <color name="gray_text">#6B7280</color>
+        <color name="text_dim">#9CA3AF</color>
+
+
+
 </resources>

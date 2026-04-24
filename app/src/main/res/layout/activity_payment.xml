@@ -9,7 +9,7 @@
     <!-- Toolbar -->
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="100dp"
         android:background="#FFFFFF"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"

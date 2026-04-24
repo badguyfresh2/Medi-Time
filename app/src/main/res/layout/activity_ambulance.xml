@@ -219,7 +219,8 @@
                     app:strokeColor="#E53935"
                     app:strokeWidth="2dp"
                     android:clickable="true"
-                    android:focusable="true">
+                    android:focusable="true"
+                    android:layout_marginBottom="20dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -273,7 +274,8 @@
                     app:cardCornerRadius="14dp"
                     app:cardElevation="3dp"
                     android:clickable="true"
-                    android:focusable="true">
+                    android:focusable="true"
+                    android:layout_marginBottom="20dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -327,7 +329,8 @@
                     app:cardCornerRadius="14dp"
                     app:cardElevation="3dp"
                     android:clickable="true"
-                    android:focusable="true">
+                    android:focusable="true"
+                    android:layout_marginBottom="20dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"

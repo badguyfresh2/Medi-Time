@@ -20,11 +20,10 @@
             app:cardBackgroundColor="#FFFFFF">
 
             <ImageView
-                android:layout_width="70dp"
-                android:layout_height="70dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:src="@drawable/logonobg"
-                app:tint="#2A5EE8" />
+                android:src="@drawable/logonobg" />
         </androidx.cardview.widget.CardView>
 
         <TextView

@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.meditime" />
+                  <option name="mobileSdkAppId" value="1:636738265099:android:a0af582aa26eaafc50270e" />
+                  <option name="projectId" value="meditime-b4fec" />
+                  <option name="projectNumber" value="636738265099" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
