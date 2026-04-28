@@ -11,7 +11,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.meditime.model.ChatMessage;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -20,7 +24,7 @@ public class ChatActivity extends AppCompatActivity {
     private ImageView btnSend;
     private TextView tvOtherName;
     private ProgressBar progressBar;
-    private DatabaseReference dbRef;
+    private DatabaseReference db;
     private FirebaseAuth mAuth;
     private String currentUid, otherUserId, chatRoomId;
     private final List<ChatMessage> messages = new ArrayList<>();
@@ -32,14 +36,15 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        dbRef    = FirebaseDatabase.getInstance().getReference();
-        mAuth    = FirebaseAuth.getInstance();
+        db    = FirebaseDatabase.getInstance().getReference();
+        mAuth = FirebaseAuth.getInstance();
         currentUid   = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : "";
         otherUserId  = getIntent().getStringExtra("doctorId") != null
                 ? getIntent().getStringExtra("doctorId")
                 : getIntent().getStringExtra("patientId") != null
                 ? getIntent().getStringExtra("patientId") : "";
 
+        // Consistent chat room ID regardless of who initiates
         String[] ids = new String[]{currentUid, otherUserId};
         java.util.Arrays.sort(ids);
         chatRoomId = "chat_" + ids[0] + "_" + ids[1];
@@ -56,8 +61,7 @@ public class ChatActivity extends AppCompatActivity {
         if (btnBack != null) btnBack.setOnClickListener(v -> finish());
 
         ImageView btnVideoCall = findViewById(R.id.btnVideoCall);
-        if (btnVideoCall != null)
-            btnVideoCall.setOnClickListener(v -> startActivity(new Intent(this, VideoCallActivity.class)));
+        if (btnVideoCall != null) btnVideoCall.setOnClickListener(v -> startActivity(new Intent(this, VideoCallActivity.class)));
 
         adapter = new ChatAdapter(messages, currentUid);
         rvMessages.setLayoutManager(new LinearLayoutManager(this));
@@ -71,55 +75,49 @@ public class ChatActivity extends AppCompatActivity {
 
     private void loadOtherUserName() {
         if (otherUserId.isEmpty()) return;
-        dbRef.child("users").child(otherUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+        // Try users node first, then doctors
+        db.child("users").child(otherUserId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot ds) {
-                if (ds.exists()) {
-                    String name = ds.child("name").getValue(String.class);
-                    if (tvOtherName != null) tvOtherName.setText(name != null ? name : "Chat");
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists() && tvOtherName != null) {
+                    String name = snapshot.child("name").getValue(String.class);
+                    tvOtherName.setText(name != null ? name : "Chat");
                 } else {
-                    dbRef.child("doctors").child(otherUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+                    db.child("doctors").child(otherUserId).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
-                        public void onDataChange(@NonNull DataSnapshot dsnap) {
-                            String n = dsnap.child("name").getValue(String.class);
-                            if (tvOtherName != null) tvOtherName.setText(n != null ? "Dr. " + n : "Doctor");
+                        public void onDataChange(@NonNull DataSnapshot d) {
+                            if (tvOtherName != null && d.exists()) {
+                                String n = d.child("name").getValue(String.class);
+                                tvOtherName.setText(n != null ? "Dr. " + n : "Doctor");
+                            }
                         }
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {}
+                        @Override public void onCancelled(@NonNull DatabaseError error) {}
                     });
                 }
             }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
 
     private void listenForMessages() {
-        listener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snap) {
-                messages.clear();
-                for (DataSnapshot msgSnap : snap.getChildren()) {
-                    ChatMessage msg = msgSnap.getValue(ChatMessage.class);
-                    if (msg != null) {
-                        msg.setMessageId(msgSnap.getKey());
-                        messages.add(msg);
+        listener = db.child("chat_rooms").child(chatRoomId).child("messages")
+            .addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    messages.clear();
+                    for (DataSnapshot doc : snapshot.getChildren()) {
+                        ChatMessage msg = doc.getValue(ChatMessage.class);
+                        if (msg != null) {
+                            msg.setMessageId(doc.getKey());
+                            messages.add(msg);
+                        }
                     }
+                    adapter.notifyDataSetChanged();
+                    if (!messages.isEmpty()) rvMessages.scrollToPosition(messages.size() - 1);
                 }
-                Collections.sort(messages, (a, b) -> {
-                    Long t1 = a.getTimestamp() != null ? a.getTimestamp().getTime() : 0;
-                    Long t2 = b.getTimestamp() != null ? b.getTimestamp().getTime() : 0;
-                    return t1.compareTo(t2);
-                });
-                adapter.notifyDataSetChanged();
-                if (!messages.isEmpty()) rvMessages.scrollToPosition(messages.size() - 1);
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
-        };
-
-        dbRef.child("chat_rooms").child(chatRoomId).child("messages").addValueEventListener(listener);
+                @Override public void onCancelled(@NonNull DatabaseError error) {}
+            });
     }
 
     private void sendMessage() {
@@ -127,31 +125,32 @@ public class ChatActivity extends AppCompatActivity {
         String text = etMessage.getText().toString().trim();
         if (text.isEmpty()) return;
 
-        ChatMessage msg = new ChatMessage();
-        msg.setSenderId(currentUid);
-        msg.setText(text);
-        msg.setType("text");
-        msg.setSeen(false);
-        msg.setTimestamp(new Date());
+        String msgId = db.child("chat_rooms").child(chatRoomId).child("messages").push().getKey();
+        if (msgId == null) return;
 
-        // Update room metadata
-        Map<String, Object> roomData = new HashMap<>();
-        roomData.put("participants", Arrays.asList(currentUid, otherUserId));
-        roomData.put("lastMessage", text);
-        roomData.put("updatedAt", ServerValue.TIMESTAMP);
-        dbRef.child("chat_rooms").child(chatRoomId).updateChildren(roomData);
+        Map<String, Object> msgMap = new HashMap<>();
+        msgMap.put("senderId", currentUid);
+        msgMap.put("text", text);
+        msgMap.put("type", "text");
+        msgMap.put("seen", false);
+        msgMap.put("timestamp", ServerValue.TIMESTAMP);
 
-        DatabaseReference msgRef = dbRef.child("chat_rooms").child(chatRoomId).child("messages").push();
-        msgRef.setValue(msg)
-                .addOnSuccessListener(r -> etMessage.setText(""))
-                .addOnFailureListener(ex -> Toast.makeText(ChatActivity.this, "Send failed", Toast.LENGTH_SHORT).show());
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("/chat_rooms/" + chatRoomId + "/messages/" + msgId, msgMap);
+        updates.put("/chat_rooms/" + chatRoomId + "/lastMessage", text);
+        updates.put("/chat_rooms/" + chatRoomId + "/updatedAt", ServerValue.TIMESTAMP);
+        updates.put("/chat_rooms/" + chatRoomId + "/participants", java.util.Arrays.asList(currentUid, otherUserId));
+
+        db.updateChildren(updates)
+            .addOnSuccessListener(aVoid -> etMessage.setText(""))
+            .addOnFailureListener(e -> Toast.makeText(ChatActivity.this, "Send failed", Toast.LENGTH_SHORT).show());
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (listener != null) {
-            dbRef.child("chat_rooms").child(chatRoomId).child("messages").removeEventListener(listener);
+            db.child("chat_rooms").child(chatRoomId).child("messages").removeEventListener(listener);
         }
     }
 }

@@ -12,8 +12,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.meditime.model.DiagnosticReport;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
+
 import java.util.*;
 
+/**
+ * Patient-facing Diagnostic screen.
+ * Shows the patient their own diagnostic reports AND any notes the doctor has added.
+ */
 public class DiagnosticActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
@@ -29,7 +34,7 @@ public class DiagnosticActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diagnostic);
 
-        dbRef = FirebaseDatabase.getInstance().getReference();
+        dbRef = FirebaseDatabase.getInstance().getReference("diagnostics");
 
         recyclerView = findViewById(R.id.rvReports);
         progressBar  = findViewById(R.id.progressBar);
@@ -40,7 +45,10 @@ public class DiagnosticActivity extends AppCompatActivity {
 
         adapter = new DiagnosticAdapter(reports, report -> {
             if (report.getFileUrl() != null && !report.getFileUrl().isEmpty()) {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(report.getFileUrl())));
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(report.getFileUrl()));
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "No file attached to this report", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -55,41 +63,57 @@ public class DiagnosticActivity extends AppCompatActivity {
     private void loadReports() {
         String uid = FirebaseAuth.getInstance().getCurrentUser() != null
                 ? FirebaseAuth.getInstance().getCurrentUser().getUid() : "";
-        if (uid.isEmpty()) return;
+        if (uid.isEmpty()) {
+            if (tvEmpty != null) {
+                tvEmpty.setText("Please log in to view your reports.");
+                tvEmpty.setVisibility(View.VISIBLE);
+            }
+            return;
+        }
         if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
 
-        listener = new ValueEventListener() {
+        // Listen to reports where patientId == uid (reports uploaded by doctor for this patient)
+        Query query = dbRef.orderByChild("patientId").equalTo(uid);
+
+        listener = query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (progressBar != null) progressBar.setVisibility(View.GONE);
                 reports.clear();
-                for (DataSnapshot child : snapshot.getChildren()) {
-                    DiagnosticReport r = child.getValue(DiagnosticReport.class);
-                    if (r != null && uid.equals(r.getPatientId())) {
-                        r.setReportId(child.getKey());
+                for (DataSnapshot doc : snapshot.getChildren()) {
+                    DiagnosticReport r = doc.getValue(DiagnosticReport.class);
+                    if (r != null) {
+                        r.setReportId(doc.getKey());
                         reports.add(r);
                     }
                 }
-                Collections.sort(reports, (a, b) -> {
-                    if (a.getCreatedAt() == null || b.getCreatedAt() == null) return 0;
+                // Sort newest first by createdAt timestamp
+                reports.sort((a, b) -> {
+                    if (a.getCreatedAt() == null && b.getCreatedAt() == null) return 0;
+                    if (a.getCreatedAt() == null) return 1;
+                    if (b.getCreatedAt() == null) return -1;
                     return b.getCreatedAt().compareTo(a.getCreatedAt());
                 });
+
                 adapter.notifyDataSetChanged();
-                if (tvEmpty != null) tvEmpty.setVisibility(reports.isEmpty() ? View.VISIBLE : View.GONE);
+                if (tvEmpty != null)
+                    tvEmpty.setVisibility(reports.isEmpty() ? View.VISIBLE : View.GONE);
+                if (tvEmpty != null && reports.isEmpty())
+                    tvEmpty.setText("No diagnostic reports found.\nYour doctor will add reports after your consultation.");
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 if (progressBar != null) progressBar.setVisibility(View.GONE);
+                Toast.makeText(DiagnosticActivity.this,
+                        "Error loading reports: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
-        };
-
-        dbRef.child("diagnostics").addValueEventListener(listener);
+        });
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (listener != null) dbRef.child("diagnostics").removeEventListener(listener);
+        if (listener != null) dbRef.removeEventListener(listener);
     }
 }

@@ -16,89 +16,70 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class DoctorAppointmentsActivity extends AppCompatActivity {
+public class UserAppointmentsActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private TextView tvEmpty;
     private DatabaseReference dbRef;
-    private String doctorId;
+    private String currentUid;
     private ValueEventListener listener;
-    private final List<Appointment> allList  = new ArrayList<>();
-    private final List<Appointment> showList = new ArrayList<>();
-    private DoctorAppointmentAdapter adapter;
-    private String currentFilter = "all";
+    private final List<Appointment> list = new ArrayList<>();
+    private UserAppointmentAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_doctor_appointments);
+        setContentView(R.layout.activity_user_appointments);
 
         dbRef = FirebaseDatabase.getInstance().getReference("appointments");
-        doctorId = FirebaseAuth.getInstance().getCurrentUser() != null
+        currentUid = FirebaseAuth.getInstance().getCurrentUser() != null
                 ? FirebaseAuth.getInstance().getCurrentUser().getUid() : "";
 
         recyclerView = findViewById(R.id.rvAppointments);
         progressBar  = findViewById(R.id.progressBar);
         tvEmpty      = findViewById(R.id.tvEmpty);
-
         ImageView btnBack = findViewById(R.id.btnBack);
         if (btnBack != null) btnBack.setOnClickListener(v -> finish());
 
-        // Filter tabs
-        TextView tabAll       = findViewById(R.id.tab_all);
-        TextView tabUpcoming  = findViewById(R.id.tab_upcoming);
-        TextView tabCompleted = findViewById(R.id.tab_completed);
-        if (tabAll != null)       tabAll.setOnClickListener(v -> applyFilter("all"));
-        if (tabUpcoming != null)  tabUpcoming.setOnClickListener(v -> applyFilter("pending"));
-        if (tabCompleted != null) tabCompleted.setOnClickListener(v -> applyFilter("completed"));
-
-        adapter = new DoctorAppointmentAdapter(showList, a -> {
-            Intent i = new Intent(this, ViewNotesActivity.class);
-            i.putExtra("appointmentId", a.getAppointmentId());
-            startActivity(i);
-        }, a -> {
-            Intent i = new Intent(this, DoctorPrescriptionsActivity.class);
-            i.putExtra("appointmentId", a.getAppointmentId());
-            i.putExtra("patientId", a.getPatientId());
-            i.putExtra("patientName", a.getPatientName());
-            startActivity(i);
+        adapter = new UserAppointmentAdapter(list, appointment -> {
+            Intent intent = new Intent(this, AppointmentDetailsActivity.class);
+            intent.putExtra("appointmentId", appointment.getAppointmentId());
+            startActivity(intent);
         });
-
-        if (recyclerView != null) {
-            recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            recyclerView.setAdapter(adapter);
-        }
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
 
         loadAppointments();
     }
 
     private void loadAppointments() {
-        if (doctorId.isEmpty()) return;
+        if (currentUid.isEmpty()) return;
         if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
 
-        Query query = dbRef.orderByChild("doctorId").equalTo(doctorId);
+        Query query = dbRef.orderByChild("patientId").equalTo(currentUid);
 
         listener = query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (progressBar != null) progressBar.setVisibility(View.GONE);
-                allList.clear();
+                list.clear();
                 for (DataSnapshot doc : snapshot.getChildren()) {
                     Appointment a = doc.getValue(Appointment.class);
                     if (a != null) {
                         a.setAppointmentId(doc.getKey());
-                        allList.add(a);
+                        list.add(a);
                     }
                 }
                 
                 // Sort by createdAt descending locally
-                Collections.sort(allList, (a, b) -> {
+                Collections.sort(list, (a, b) -> {
                     if (a.getCreatedAt() == null || b.getCreatedAt() == null) return 0;
                     return b.getCreatedAt().compareTo(a.getCreatedAt());
                 });
 
-                applyFilter(currentFilter);
+                adapter.notifyDataSetChanged();
+                if (tvEmpty != null) tvEmpty.setVisibility(list.isEmpty() ? View.VISIBLE : View.GONE);
             }
 
             @Override
@@ -106,20 +87,6 @@ public class DoctorAppointmentsActivity extends AppCompatActivity {
                 if (progressBar != null) progressBar.setVisibility(View.GONE);
             }
         });
-    }
-
-    private void applyFilter(String filter) {
-        currentFilter = filter;
-        showList.clear();
-        for (Appointment a : allList) {
-            String status = a.getStatus() != null ? a.getStatus() : "";
-            if ("all".equals(filter) || status.equals(filter) ||
-               ("pending".equals(filter) && "confirmed".equals(status))) {
-                showList.add(a);
-            }
-        }
-        adapter.notifyDataSetChanged();
-        if (tvEmpty != null) tvEmpty.setVisibility(showList.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     @Override

@@ -7,12 +7,15 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
+
 import java.util.*;
 
 public class DoctorScheduleActivity extends AppCompatActivity {
 
     private LinearLayout slotContainer;
+    private CalendarView calendarView;
     private TextView tvSelectedDate, tvSlotCount;
+    private Button btnAddSlot, btnSave;
     private ProgressBar progressBar;
     private DatabaseReference dbRef;
     private String doctorId, selectedDate = "";
@@ -20,9 +23,9 @@ public class DoctorScheduleActivity extends AppCompatActivity {
     private final List<String> bookedSlots  = new ArrayList<>();
 
     private static final String[] DEFAULT_SLOTS = {
-            "8:00 AM","8:30 AM","9:00 AM","9:30 AM","10:00 AM","10:30 AM",
-            "11:00 AM","11:30 AM","1:00 PM","1:30 PM","2:00 PM","2:30 PM",
-            "3:00 PM","3:30 PM","4:00 PM","4:30 PM","5:00 PM"
+        "8:00 AM","8:30 AM","9:00 AM","9:30 AM","10:00 AM","10:30 AM",
+        "11:00 AM","11:30 AM","1:00 PM","1:30 PM","2:00 PM","2:30 PM",
+        "3:00 PM","3:30 PM","4:00 PM","4:30 PM","5:00 PM"
     };
 
     @Override
@@ -34,12 +37,12 @@ public class DoctorScheduleActivity extends AppCompatActivity {
         doctorId = FirebaseAuth.getInstance().getCurrentUser() != null
                 ? FirebaseAuth.getInstance().getCurrentUser().getUid() : "";
 
-        CalendarView calendarView = findViewById(R.id.calendarView);
+        calendarView   = findViewById(R.id.calendarView);
         slotContainer  = findViewById(R.id.slotContainer);
         tvSelectedDate = findViewById(R.id.tvSelectedDate);
         tvSlotCount    = findViewById(R.id.tvSlotCount);
-        Button btnAddSlot = findViewById(R.id.btn_add_slot);
-        Button btnSave = findViewById(R.id.btn_edit_schedule);
+        btnAddSlot     = findViewById(R.id.btn_add_slot);
+        btnSave        = findViewById(R.id.btn_edit_schedule);
         progressBar    = findViewById(R.id.progressBar);
 
         if (progressBar != null) progressBar.setVisibility(View.GONE);
@@ -56,8 +59,13 @@ public class DoctorScheduleActivity extends AppCompatActivity {
             });
         }
 
-        if (btnAddSlot != null) btnAddSlot.setOnClickListener(v -> showAddSlotDialog());
-        if (btnSave != null) btnSave.setOnClickListener(v -> saveSchedule());
+        if (btnAddSlot != null) {
+            btnAddSlot.setOnClickListener(v -> showAddSlotDialog());
+        }
+
+        if (btnSave != null) {
+            btnSave.setOnClickListener(v -> saveSchedule());
+        }
     }
 
     private void loadScheduleForDate() {
@@ -66,48 +74,51 @@ public class DoctorScheduleActivity extends AppCompatActivity {
 
         String dateKey = selectedDate.replace("/", "-");
 
+        // Load doctor's defined slots
         dbRef.child("doctor_schedules").child(doctorId).child("slots").child(dateKey)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot doc) {
-                        currentSlots.clear();
-                        if (doc.exists() && doc.child("slots").getValue() != null) {
-                            for (DataSnapshot slot : doc.child("slots").getChildren()) {
-                                String s = slot.getValue(String.class);
-                                if (s != null) currentSlots.add(s);
-                            }
-                        } else {
-                            currentSlots.addAll(Arrays.asList(DEFAULT_SLOTS));
-                        }
-                        loadBookedSlots();
+            .addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    currentSlots.clear();
+                    if (snapshot.exists()) {
+                        GenericTypeIndicator<List<String>> t = new GenericTypeIndicator<List<String>>() {};
+                        List<String> saved = snapshot.child("slots").getValue(t);
+                        if (saved != null) currentSlots.addAll(saved);
+                    } else {
+                        currentSlots.addAll(Arrays.asList(DEFAULT_SLOTS));
                     }
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        if (progressBar != null) progressBar.setVisibility(View.GONE);
-                    }
-                });
+                    loadBookedSlots(dateKey);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    if (progressBar != null) progressBar.setVisibility(View.GONE);
+                }
+            });
     }
 
-    private void loadBookedSlots() {
-        dbRef.child("appointments").addListenerForSingleValueEvent(new ValueEventListener() {
+    private void loadBookedSlots(String dateKey) {
+        Query query = dbRef.child("appointments").orderByChild("doctorId").equalTo(doctorId);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snap) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
                 bookedSlots.clear();
-                for (DataSnapshot ds : snap.getChildren()) {
-                    String dId = ds.child("doctorId").getValue(String.class);
-                    String date = ds.child("date").getValue(String.class);
-                    String status = ds.child("status").getValue(String.class);
-                    if (doctorId.equals(dId) && selectedDate.equals(date) && !"cancelled".equals(status)) {
-                        String slot = ds.child("timeSlot").getValue(String.class);
+                for (DataSnapshot d : snapshot.getChildren()) {
+                    String date = d.child("date").getValue(String.class);
+                    String status = d.child("status").getValue(String.class);
+                    if (selectedDate.equals(date) && !"cancelled".equals(status)) {
+                        String slot = d.child("timeSlot").getValue(String.class);
                         if (slot != null) bookedSlots.add(slot);
                     }
                 }
                 if (progressBar != null) progressBar.setVisibility(View.GONE);
                 renderSlots();
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 if (progressBar != null) progressBar.setVisibility(View.GONE);
+                renderSlots();
             }
         });
     }
@@ -125,7 +136,7 @@ public class DoctorScheduleActivity extends AppCompatActivity {
             if (tvSlot != null)   tvSlot.setText(slot);
             boolean isBooked = bookedSlots.contains(slot);
             if (tvStatus != null) {
-                tvStatus.setText(isBooked ? getString(R.string.booked) : getString(R.string.available));
+                tvStatus.setText(isBooked ? "BOOKED" : "AVAILABLE");
                 tvStatus.setTextColor(isBooked ? 0xFFEF4444 : 0xFF059669);
             }
             if (btnRemove != null) {
@@ -140,30 +151,29 @@ public class DoctorScheduleActivity extends AppCompatActivity {
             }
             slotContainer.addView(row);
         }
-        if (tvSlotCount != null)
-            tvSlotCount.setText(getString(R.string.slot_count_format, currentSlots.size()));
+        if (tvSlotCount != null) tvSlotCount.setText(currentSlots.size() + " slots");
     }
 
     private void showAddSlotDialog() {
         EditText input = new EditText(this);
-        input.setHint(R.string.add_slot_hint);
+        input.setHint("e.g. 6:00 PM");
         new android.app.AlertDialog.Builder(this)
-                .setTitle(R.string.add_time_slot)
-                .setView(input)
-                .setPositiveButton(R.string.add, (d, w) -> {
-                    String slot = input.getText().toString().trim();
-                    if (!slot.isEmpty() && !currentSlots.contains(slot)) {
-                        currentSlots.add(slot);
-                        renderSlots();
-                    }
-                })
-                .setNegativeButton(R.string.cancel, null)
-                .show();
+            .setTitle("Add Time Slot")
+            .setView(input)
+            .setPositiveButton("Add", (d, w) -> {
+                String slot = input.getText().toString().trim();
+                if (!slot.isEmpty() && !currentSlots.contains(slot)) {
+                    currentSlots.add(slot);
+                    renderSlots();
+                }
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
     }
 
     private void saveSchedule() {
         if (doctorId.isEmpty() || selectedDate.isEmpty()) {
-            Toast.makeText(this, R.string.select_date_first, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please select a date first", Toast.LENGTH_SHORT).show();
             return;
         }
         if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
@@ -174,14 +184,15 @@ public class DoctorScheduleActivity extends AppCompatActivity {
         data.put("date", selectedDate);
         data.put("doctorId", doctorId);
 
-        dbRef.child("doctor_schedules").child(doctorId).child("slots").child(dateKey).setValue(data)
-                .addOnSuccessListener(v -> {
-                    if (progressBar != null) progressBar.setVisibility(View.GONE);
-                    Toast.makeText(this, getString(R.string.schedule_saved_for, selectedDate), Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    if (progressBar != null) progressBar.setVisibility(View.GONE);
-                    Toast.makeText(this, getString(R.string.error_prefix, e.getMessage()), Toast.LENGTH_SHORT).show();
-                });
+        dbRef.child("doctor_schedules").child(doctorId).child("slots").child(dateKey)
+            .setValue(data)
+            .addOnSuccessListener(v -> {
+                if (progressBar != null) progressBar.setVisibility(View.GONE);
+                Toast.makeText(this, "Schedule saved for " + selectedDate, Toast.LENGTH_SHORT).show();
+            })
+            .addOnFailureListener(e -> {
+                if (progressBar != null) progressBar.setVisibility(View.GONE);
+                Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            });
     }
 }

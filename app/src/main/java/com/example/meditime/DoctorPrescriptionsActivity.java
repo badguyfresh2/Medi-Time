@@ -4,13 +4,17 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.*;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.meditime.model.MedicineItem;
 import com.example.meditime.model.Prescription;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DoctorPrescriptionsActivity extends AppCompatActivity {
 
@@ -49,20 +53,22 @@ public class DoctorPrescriptionsActivity extends AppCompatActivity {
 
         if (progressBar != null) progressBar.setVisibility(View.GONE);
 
+        // Resolve patient name
         if (patientName != null && tvPatientName != null) {
             tvPatientName.setText("Patient: " + patientName);
         } else if (patientId != null) {
-            dbRef.child("users").child(patientId).addListenerForSingleValueEvent(new ValueEventListener() {
+            dbRef.child("users").child(patientId).child("name").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
-                public void onDataChange(DataSnapshot ds) {
-                    String name = ds.child("name").getValue(String.class);
-                    if (name != null) {
-                        patientName = name;
-                        if (tvPatientName != null) tvPatientName.setText("Patient: " + name);
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    String name = snapshot.getValue(String.class);
+                    if (name != null) { 
+                        patientName = name; 
+                        if (tvPatientName != null) tvPatientName.setText("Patient: " + name); 
                     }
                 }
+
                 @Override
-                public void onCancelled(DatabaseError error) {}
+                public void onCancelled(@NonNull DatabaseError error) {}
             });
         }
 
@@ -115,11 +121,14 @@ public class DoctorPrescriptionsActivity extends AppCompatActivity {
 
         dbRef.child("doctors").child(doctorId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot doctorDoc) {
-                String doctorName = doctorDoc.child("name").getValue(String.class);
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String doctorName = snapshot.child("name").getValue(String.class);
                 if (doctorName == null) doctorName = "Doctor";
 
+                String prescriptionId = dbRef.child("prescriptions").push().getKey();
+                
                 Prescription prescription = new Prescription();
+                prescription.setPrescriptionId(prescriptionId);
                 prescription.setPatientId(patientId);
                 prescription.setDoctorId(doctorId);
                 prescription.setDoctorName(doctorName);
@@ -128,11 +137,11 @@ public class DoctorPrescriptionsActivity extends AppCompatActivity {
                 prescription.setDiagnosis(diagnosis);
                 prescription.setNotes(notes);
                 prescription.setMedicines(medicines);
+                prescription.setCreatedAt(System.currentTimeMillis());
 
-                DatabaseReference prescRef = dbRef.child("prescriptions").push();
-                prescription.setPrescriptionId(prescRef.getKey());
-                prescRef.setValue(prescription)
-                        .addOnSuccessListener(aVoid -> {
+                if (prescriptionId != null) {
+                    dbRef.child("prescriptions").child(prescriptionId).setValue(prescription)
+                        .addOnSuccessListener(v -> {
                             if (progressBar != null) progressBar.setVisibility(View.GONE);
                             Toast.makeText(DoctorPrescriptionsActivity.this, "Prescription sent successfully!", Toast.LENGTH_LONG).show();
                             finish();
@@ -141,9 +150,11 @@ public class DoctorPrescriptionsActivity extends AppCompatActivity {
                             if (progressBar != null) progressBar.setVisibility(View.GONE);
                             Toast.makeText(DoctorPrescriptionsActivity.this, "Error: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
                         });
+                }
             }
+
             @Override
-            public void onCancelled(DatabaseError error) {
+            public void onCancelled(@NonNull DatabaseError error) {
                 if (progressBar != null) progressBar.setVisibility(View.GONE);
             }
         });

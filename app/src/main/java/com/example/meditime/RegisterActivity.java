@@ -52,7 +52,7 @@ public class RegisterActivity extends AppCompatActivity {
         tabPatient.setOnClickListener(v -> switchTab(false));
         tabDoctor.setOnClickListener(v  -> switchTab(true));
         btnSignup.setOnClickListener(v  -> registerUser());
-        tvLogin.setOnClickListener(v    -> finish());
+        tvLogin.setOnClickListener(v -> startActivity(new Intent(RegisterActivity.this, LoginActivity.class)));
     }
 
     private void registerUser() {

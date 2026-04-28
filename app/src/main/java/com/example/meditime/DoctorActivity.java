@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.meditime.model.Doctor;
 import com.google.firebase.database.*;
+
 import java.util.*;
 
 public class DoctorActivity extends AppCompatActivity {
@@ -24,15 +25,16 @@ public class DoctorActivity extends AppCompatActivity {
     private LinearLayout filterContainer;
 
     private DatabaseReference dbRef;
+    private ValueEventListener listener;
     private final List<Doctor> allDoctors  = new ArrayList<>();
     private final List<Doctor> showDoctors = new ArrayList<>();
     private DoctorListAdapter adapter;
     private String activeFilter = "All";
 
     private static final String[] SPECIALIZATIONS = {
-            "All", "General", "Cardiologist", "Dermatologist",
-            "Pediatrician", "Gynecologist", "Orthopedic",
-            "Neurologist", "Dentist", "Ophthalmologist"
+        "All", "General", "Cardiologist", "Dermatologist",
+        "Pediatrician", "Gynecologist", "Orthopedic",
+        "Neurologist", "Dentist", "Ophthalmologist"
     };
 
     @Override
@@ -40,7 +42,7 @@ public class DoctorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_doctor);
 
-        dbRef = FirebaseDatabase.getInstance().getReference();
+        dbRef = FirebaseDatabase.getInstance().getReference("doctors");
 
         rvDoctors      = findViewById(R.id.rvDoctors);
         etSearch       = findViewById(R.id.etSearch);
@@ -84,8 +86,8 @@ public class DoctorActivity extends AppCompatActivity {
             chip.setTextSize(12f);
             chip.setPadding(40, 14, 40, 14);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
             lp.setMarginEnd(8);
             chip.setLayoutParams(lp);
             styleChip(chip, spec.equals(activeFilter));
@@ -101,30 +103,32 @@ public class DoctorActivity extends AppCompatActivity {
     private void styleChip(TextView chip, boolean active) {
         GradientDrawable bg = new GradientDrawable();
         bg.setShape(GradientDrawable.RECTANGLE);
-        bg.setCornerRadius(100f);
+        bg.setCornerRadius(100f); // pill shape
+
         if (active) {
             bg.setColor(0xFF4A90D9);
             chip.setTextColor(0xFFFFFFFF);
         } else {
             bg.setColor(0xFFFFFFFF);
-            bg.setStroke(2, 0xFFD1D5DB);
+            bg.setStroke(2, 0xFFD1D5DB); // subtle border for inactive
             chip.setTextColor(0xFF374151);
         }
+
         chip.setBackground(bg);
     }
 
     private void loadDoctors() {
         if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
 
-        dbRef.child("doctors").addValueEventListener(new ValueEventListener() {
+        listener = dbRef.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snap) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (progressBar != null) progressBar.setVisibility(View.GONE);
                 allDoctors.clear();
-                for (DataSnapshot child : snap.getChildren()) {
-                    Doctor d = child.getValue(Doctor.class);
+                for (DataSnapshot doc : snapshot.getChildren()) {
+                    Doctor d = doc.getValue(Doctor.class);
                     if (d != null) {
-                        if (d.getUserId() == null) d.setUserId(child.getKey());
+                        if (d.getUserId() == null) d.setUserId(doc.getKey());
                         allDoctors.add(d);
                     }
                 }
@@ -134,6 +138,10 @@ public class DoctorActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 if (progressBar != null) progressBar.setVisibility(View.GONE);
+                if (tvEmpty != null) {
+                    tvEmpty.setVisibility(View.VISIBLE);
+                    tvEmpty.setText("Could not load doctors. Check connection.");
+                }
             }
         });
     }
@@ -141,17 +149,30 @@ public class DoctorActivity extends AppCompatActivity {
     private void applyFilters(String query) {
         showDoctors.clear();
         for (Doctor d : allDoctors) {
+            // Filter by specialization chip
             boolean matchesSpec = activeFilter.equals("All") ||
-                    (d.getSpecialization() != null &&
-                            d.getSpecialization().toLowerCase().contains(activeFilter.toLowerCase()));
+                (d.getSpecialization() != null &&
+                 d.getSpecialization().toLowerCase().contains(activeFilter.toLowerCase()));
+            // Filter by search text (name or specialization)
             boolean matchesSearch = query.isEmpty() ||
-                    (d.getName() != null && d.getName().toLowerCase().contains(query.toLowerCase())) ||
-                    (d.getSpecialization() != null && d.getSpecialization().toLowerCase().contains(query.toLowerCase())) ||
-                    (d.getHospital() != null && d.getHospital().toLowerCase().contains(query.toLowerCase()));
+                (d.getName() != null && d.getName().toLowerCase().contains(query.toLowerCase())) ||
+                (d.getSpecialization() != null && d.getSpecialization().toLowerCase().contains(query.toLowerCase())) ||
+                (d.getHospital() != null && d.getHospital().toLowerCase().contains(query.toLowerCase()));
+
             if (matchesSpec && matchesSearch) showDoctors.add(d);
         }
         adapter.notifyDataSetChanged();
-        if (tvEmpty != null) tvEmpty.setVisibility(showDoctors.isEmpty() ? View.VISIBLE : View.GONE);
-        if (tvCount != null) tvCount.setText(showDoctors.size() + " doctor" + (showDoctors.size() == 1 ? "" : "s") + " found");
+
+        boolean empty = showDoctors.isEmpty();
+        if (tvEmpty != null)  tvEmpty.setVisibility(empty ? View.VISIBLE : View.GONE);
+        if (tvCount != null)  tvCount.setText(showDoctors.size() + " doctor" + (showDoctors.size() == 1 ? "" : "s") + " found");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (listener != null && dbRef != null) {
+            dbRef.removeEventListener(listener);
+        }
     }
 }

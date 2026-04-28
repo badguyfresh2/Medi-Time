@@ -24,6 +24,7 @@ public class HomeActivity extends AppCompatActivity {
     private final List<Doctor> doctors = new ArrayList<>();
     private HomeDoctorAdapter adapter;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,7 +36,7 @@ public class HomeActivity extends AppCompatActivity {
         LinearLayout serviceAmbulance = findViewById(R.id.service_ambulance);
         LinearLayout serviceDiagnostic = findViewById(R.id.service_diagnostic);
         LinearLayout serviceReminder = findViewById(R.id.service_reminder);
-        LinearLayout serviceChat = findViewById(R.id.service_chat);
+        LinearLayout servicePrescription = findViewById(R.id.service_prescription);
         LinearLayout serviceRecords = findViewById(R.id.service_records);
 
         if (serviceDoctor != null) serviceDoctor.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, DoctorActivity.class)));
@@ -44,7 +45,7 @@ public class HomeActivity extends AppCompatActivity {
         if (serviceAmbulance != null) serviceAmbulance.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, AmbulanceActivity.class)));
         if (serviceDiagnostic != null) serviceDiagnostic.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, DiagnosticActivity.class)));
         if (serviceReminder != null) serviceReminder.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, ReminderActivity.class)));
-        if (serviceChat != null) serviceChat.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, ChatActivity.class)));
+        if (servicePrescription != null) servicePrescription.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, PrescriptionActivity.class)));
         if (serviceRecords != null) serviceRecords.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, MedicalRecordsActivity.class)));
 
         TextView btnOrderNow = findViewById(R.id.btnOrderNow);

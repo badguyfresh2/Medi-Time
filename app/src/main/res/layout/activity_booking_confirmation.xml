@@ -8,28 +8,27 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
+        android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:padding="24dp"
-        android:paddingTop="48dp">
+        android:padding="20dp"
+        android:paddingTop="40dp">
 
         <!-- ✓ Success icon -->
         <androidx.cardview.widget.CardView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_marginBottom="20dp"
-            app:cardBackgroundColor="#E8F5E9"
-            app:cardCornerRadius="50dp"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="#D1FAE5"
+            app:cardCornerRadius="45dp"
             app:cardElevation="0dp">
-
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:text="✓"
                 android:textColor="#059669"
-                android:textSize="44sp"
-                android:textStyle="bold" />
+                android:textSize="40sp"
+                android:textStyle="bold"/>
         </androidx.cardview.widget.CardView>
 
         <TextView
@@ -37,25 +36,30 @@
             android:layout_height="wrap_content"
             android:text="Booking Confirmed!"
             android:textColor="#1A2C3E"
-            android:textSize="26sp"
-            android:textStyle="bold" />
+            android:textSize="24sp"
+            android:textStyle="bold"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="28dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="20dp"
             android:gravity="center"
-            android:lineSpacingExtra="4dp"
-            android:text="Your appointment has been booked.\nA reminder has been saved to your phone."
+            android:text="Your appointment has been booked successfully"
             android:textColor="#6B7280"
-            android:textSize="14sp" />
+            android:textSize="13sp"/>
 
-        <!-- ── Appointment detail card ── -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
+
+        <!-- ── Main Detail Card ──────────────────────────────────────────── -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="28dp"
+            android:layout_marginBottom="14dp"
             app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="20dp"
             app:cardElevation="6dp">
@@ -64,43 +68,40 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="18dp">
 
-                <!-- Doctor row -->
+                <!-- Doctor name + status -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="14dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
-                    <!-- Doctor avatar circle -->
                     <TextView
-                        android:layout_width="52dp"
-                        android:layout_height="52dp"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
                         android:background="#2A5EE8"
                         android:gravity="center"
                         android:text="Dr"
                         android:textColor="#FFFFFF"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:textSize="14sp"
+                        android:textStyle="bold"/>
 
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="14dp"
+                        android:layout_marginStart="12dp"
                         android:layout_weight="1"
                         android:orientation="vertical">
-
                         <TextView
                             android:id="@+id/tvConfirmDoctorName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Dr. Name"
                             android:textColor="#1A2C3E"
-                            android:textSize="17sp"
-                            android:textStyle="bold" />
-
+                            android:textSize="16sp"
+                            android:textStyle="bold"/>
                         <TextView
                             android:id="@+id/tvConfirmSpec"
                             android:layout_width="wrap_content"
@@ -108,220 +109,153 @@
                             android:layout_marginTop="2dp"
                             android:text="Specialization"
                             android:textColor="#6B7280"
-                            android:textSize="13sp" />
+                            android:textSize="12sp"/>
                     </LinearLayout>
 
-                    <!-- Status badge -->
                     <TextView
                         android:id="@+id/tvConfirmStatus"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="#FEF3C7"
-                        android:padding="6dp"
-                        android:text="Pending"
+                        android:paddingStart="8dp"
+                        android:paddingTop="4dp"
+                        android:paddingEnd="8dp"
+                        android:paddingBottom="4dp"
+                        android:text="⏳  Pending"
                         android:textColor="#D97706"
                         android:textSize="11sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"/>
                 </LinearLayout>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginBottom="14dp"
-                    android:background="#F3F4F6" />
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:background="#F3F4F6" android:layout_marginBottom="12dp"/>
 
-                <!-- Date row -->
+                <!-- Patient -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp" android:gravity="center_vertical" android:orientation="horizontal">
+                    <TextView android:layout_width="22dp" android:layout_height="wrap_content" android:text="👤" android:textSize="15sp"/>
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp" android:layout_weight="1"
+                        android:text="Patient" android:textColor="#6B7280" android:textSize="13sp"/>
+                    <TextView android:id="@+id/tvConfirmPatientName"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="—" android:textColor="#1A2C3E" android:textSize="13sp" android:textStyle="bold"/>
+                </LinearLayout>
+
+                <!-- Hospital -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp" android:gravity="center_vertical" android:orientation="horizontal">
+                    <TextView android:layout_width="22dp" android:layout_height="wrap_content" android:text="🏥" android:textSize="15sp"/>
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp" android:layout_weight="1"
+                        android:text="Hospital" android:textColor="#6B7280" android:textSize="13sp"/>
+                    <TextView android:id="@+id/tvConfirmHospital"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:maxWidth="160dp" android:text="—"
+                        android:textColor="#1A2C3E" android:textSize="13sp"/>
+                </LinearLayout>
+
+                <!-- Date -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp" android:gravity="center_vertical" android:orientation="horizontal">
+                    <TextView android:layout_width="22dp" android:layout_height="wrap_content" android:text="📅" android:textSize="15sp"/>
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp" android:layout_weight="1"
+                        android:text="Date" android:textColor="#6B7280" android:textSize="13sp"/>
+                    <TextView android:id="@+id/tvConfirmDate"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="—" android:textColor="#1A2C3E" android:textSize="13sp" android:textStyle="bold"/>
+                </LinearLayout>
+
+                <!-- Time -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp" android:gravity="center_vertical" android:orientation="horizontal">
+                    <TextView android:layout_width="22dp" android:layout_height="wrap_content" android:text="🕐" android:textSize="15sp"/>
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp" android:layout_weight="1"
+                        android:text="Time" android:textColor="#6B7280" android:textSize="13sp"/>
+                    <TextView android:id="@+id/tvConfirmTime"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="—" android:textColor="#1A2C3E" android:textSize="13sp" android:textStyle="bold"/>
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:background="#F3F4F6" android:layout_marginBottom="12dp"/>
+
+                <!-- Consult Fee -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp" android:gravity="center_vertical" android:orientation="horizontal">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="Consultation Fee"
+                        android:textColor="#6B7280" android:textSize="13sp"/>
+                    <TextView android:id="@+id/tvConfirmFee"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="UGX 0" android:textColor="#1A2C3E" android:textSize="13sp"/>
+                </LinearLayout>
+
+                <!-- Total Paid -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp" android:gravity="center_vertical" android:orientation="horizontal">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="Total Paid"
+                        android:textColor="#1A2C3E" android:textSize="14sp" android:textStyle="bold"/>
+                    <TextView android:id="@+id/tvConfirmTotal"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="UGX 0" android:textColor="#059669"
+                        android:textSize="15sp" android:textStyle="bold"/>
+                </LinearLayout>
+
+                <!-- Payment Method -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp" android:gravity="center_vertical" android:orientation="horizontal">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="Payment Method"
+                        android:textColor="#6B7280" android:textSize="13sp"/>
+                    <TextView android:id="@+id/tvConfirmPayMethod"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="—" android:textColor="#2A5EE8" android:textSize="13sp" android:textStyle="bold"/>
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:background="#F3F4F6" android:layout_marginBottom="10dp"/>
+
+                <!-- Booking ID -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:gravity="center_vertical" android:orientation="horizontal">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="Booking ID"
+                        android:textColor="#9CA3AF" android:textSize="12sp"/>
+                    <TextView android:id="@+id/tvConfirmBookingId"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="#—" android:textColor="#2A5EE8"
+                        android:textSize="12sp" android:textStyle="bold"/>
+                </LinearLayout>
+
+                <!-- Reminder notice -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="20dp"
-                        android:layout_height="wrap_content"
-                        android:text="📅"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_weight="1"
-                        android:text="Date"
-                        android:textColor="#6B7280"
-                        android:textSize="13sp" />
-
-                    <TextView
-                        android:id="@+id/tvConfirmDate"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="—"
-                        android:textColor="#1A2C3E"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- Time row -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="20dp"
-                        android:layout_height="wrap_content"
-                        android:text="🕐"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_weight="1"
-                        android:text="Time"
-                        android:textColor="#6B7280"
-                        android:textSize="13sp" />
-
-                    <TextView
-                        android:id="@+id/tvConfirmTime"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="—"
-                        android:textColor="#1A2C3E"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- Hospital row -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="20dp"
-                        android:layout_height="wrap_content"
-                        android:text="🏥"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_weight="1"
-                        android:text="Hospital"
-                        android:textColor="#6B7280"
-                        android:textSize="13sp" />
-
-                    <TextView
-                        android:id="@+id/tvConfirmHospital"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:maxWidth="160dp"
-                        android:text="—"
-                        android:textColor="#1A2C3E"
-                        android:textSize="13sp" />
-                </LinearLayout>
-
-                <!-- Fee row -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="14dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="20dp"
-                        android:layout_height="wrap_content"
-                        android:text="💰"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_weight="1"
-                        android:text="Consultation Fee"
-                        android:textColor="#6B7280"
-                        android:textSize="13sp" />
-
-                    <TextView
-                        android:id="@+id/tvConfirmFee"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="UGX 0"
-                        android:textColor="#059669"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginBottom="12dp"
-                    android:background="#F3F4F6" />
-
-                <!-- Booking ID row -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Booking ID"
-                        android:textColor="#9CA3AF"
-                        android:textSize="13sp" />
-
-                    <TextView
-                        android:id="@+id/tvConfirmBookingId"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="#—"
-                        android:textColor="#2A5EE8"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- Reminder saved notice -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
+                    android:layout_marginTop="12dp"
                     android:background="#F0FDF4"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:padding="10dp">
-
+                    <TextView android:layout_width="22dp" android:layout_height="wrap_content"
+                        android:text="🔔" android:textSize="14sp"/>
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
-                        android:text="🔔"
-                        android:textSize="14sp" />
-
-                    <TextView
+                        android:id="@+id/tvReminderNotice"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
                         android:lineSpacingExtra="2dp"
-                        android:text="Reminder saved to your phone. You'll be notified at the appointment time."
+                        android:text="Reminder saved! You will be notified at the appointment time."
                         android:textColor="#059669"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"/>
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- ── Action buttons ── -->
+        <!-- ── Action Buttons ────────────────────────────────────────────── -->
         <Button
             android:id="@+id/btnViewAppointments"
             android:layout_width="match_parent"
@@ -329,9 +263,10 @@
             android:layout_marginBottom="10dp"
             android:backgroundTint="#2A5EE8"
             android:text="View My Appointments"
+            android:textAllCaps="false"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"/>
 
         <Button
             android:id="@+id/btnViewReminders"
@@ -339,20 +274,23 @@
             android:layout_height="52dp"
             android:layout_marginBottom="10dp"
             android:backgroundTint="#F4A623"
-            android:text="View Reminders"
+            android:text="View Reminders 🔔"
+            android:textAllCaps="false"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"/>
 
         <Button
             android:id="@+id/btnGoHome"
             android:layout_width="match_parent"
             android:layout_height="52dp"
-            android:backgroundTint="#E8F0FE"
+            android:layout_marginBottom="20dp"
+            android:backgroundTint="#EFF6FF"
             android:text="Back to Home"
+            android:textAllCaps="false"
             android:textColor="#2A5EE8"
             android:textSize="15sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"/>
 
     </LinearLayout>
 </ScrollView>

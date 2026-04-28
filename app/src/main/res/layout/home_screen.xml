@@ -467,7 +467,7 @@
 
                 <!-- Chat -->
                 <LinearLayout
-                    android:id="@+id/service_chat"
+                    android:id="@+id/service_prescription"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -487,7 +487,7 @@
                             android:layout_width="30dp"
                             android:layout_height="30dp"
                             android:layout_gravity="center"
-                            android:src="@drawable/communication"
+                            android:src="@drawable/prescription"
                             app:tint="#1976D2"
                             android:contentDescription="@null" />
                     </androidx.cardview.widget.CardView>
@@ -495,7 +495,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
-                        android:text="@string/chat"
+                        android:text="Prescription"
                         android:textColor="#2D3436"
                         android:textSize="11sp"
                         android:gravity="center" />

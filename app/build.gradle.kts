@@ -32,6 +32,7 @@ android {
 }
 
 dependencies {
+
     // AndroidX core
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")
@@ -39,6 +40,15 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.2.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.cardview:cardview:1.0.0")
+
+
+        // ... your existing dependencies
+        implementation ("com.google.firebase:firebase-messaging:23.4.1" )// latest
+    // Flexbox
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
+
+    //Grid layout
+    implementation("androidx.gridlayout:gridlayout:1.0.0")
 
     // Firebase BOM — manages all Firebase versions
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))

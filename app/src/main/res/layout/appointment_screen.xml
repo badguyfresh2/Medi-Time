@@ -43,6 +43,31 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <!-- Doctor Details -->
+            <TextView
+                android:id="@+id/tvDoctorNameHdr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#111827"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvSpecHdr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#6B7280"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tvFeeHdr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:textColor="#0EA5E9"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -58,6 +83,17 @@
                 android:layout_height="wrap_content"
                 android:firstDayOfWeek="2" />
 
+
+            <TextView
+                android:id="@+id/tvSelecteDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:text="First select date ... ☝️"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
             <TextView
                 android:id="@+id/tvSelectedDate"
                 android:layout_width="wrap_content"
@@ -85,140 +121,17 @@
                 android:textStyle="bold" />
 
             <!-- Time slots grid -->
-            <LinearLayout
+            <GridLayout
+                android:id="@+id/slotGrid"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp"
-                android:orientation="horizontal"
-                android:weightSum="3"
-                android:baselineAligned="false">
-
-                <Button
-                    android:id="@+id/timeSlot9"
-                    android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_margin="3dp"
-                    android:layout_weight="1"
-                    android:backgroundTint="#F3F4F6"
-                    android:text="@string/time_9_00_am"
-                    android:textColor="#374151"
-                    android:textSize="12sp"
-                    style="?android:attr/buttonBarButtonStyle" />
-
-                <Button
-                    android:id="@+id/timeSlot930"
-                    android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_margin="3dp"
-                    android:layout_weight="1"
-                    android:backgroundTint="#F3F4F6"
-                    android:text="@string/time_9_30_am"
-                    android:textColor="#374151"
-                    android:textSize="12sp"
-                    style="?android:attr/buttonBarButtonStyle" />
-
-                <Button
-                    android:id="@+id/timeSlot10"
-                    android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_margin="3dp"
-                    android:layout_weight="1"
-                    android:backgroundTint="#F3F4F6"
-                    android:text="@string/time_10_00_am"
-                    android:textColor="#374151"
-                    android:textSize="12sp"
-                    style="?android:attr/buttonBarButtonStyle" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp"
-                android:orientation="horizontal"
-                android:weightSum="3"
-                android:baselineAligned="false">
-
-                <Button
-                    android:id="@+id/timeSlot11"
-                    android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_margin="3dp"
-                    android:layout_weight="1"
-                    android:backgroundTint="#F3F4F6"
-                    android:text="@string/time_11_00_am"
-                    android:textColor="#374151"
-                    android:textSize="12sp"
-                    style="?android:attr/buttonBarButtonStyle" />
-
-                <Button
-                    android:id="@+id/timeSlot2"
-                    android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_margin="3dp"
-                    android:layout_weight="1"
-                    android:backgroundTint="#F3F4F6"
-                    android:text="@string/time_2_00_pm"
-                    android:textColor="#374151"
-                    android:textSize="12sp"
-                    style="?android:attr/buttonBarButtonStyle" />
-
-                <Button
-                    android:id="@+id/timeSlot230"
-                    android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_margin="3dp"
-                    android:layout_weight="1"
-                    android:backgroundTint="#F3F4F6"
-                    android:text="@string/time_2_30_pm"
-                    android:textColor="#374151"
-                    android:textSize="12sp"
-                    style="?android:attr/buttonBarButtonStyle" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp"
-                android:orientation="horizontal"
-                android:weightSum="3"
-                android:baselineAligned="false">
-
-                <Button
-                    android:id="@+id/timeSlot330"
-                    android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_margin="3dp"
-                    android:layout_weight="1"
-                    android:backgroundTint="#F3F4F6"
-                    android:text="@string/time_3_30_pm"
-                    android:textColor="#374151"
-                    android:textSize="12sp"
-                    style="?android:attr/buttonBarButtonStyle" />
-
-                <Button
-                    android:id="@+id/timeSlot4"
-                    android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_margin="3dp"
-                    android:layout_weight="1"
-                    android:backgroundTint="#F3F4F6"
-                    android:text="@string/time_4_00_pm"
-                    android:textColor="#374151"
-                    android:textSize="12sp"
-                    style="?android:attr/buttonBarButtonStyle" />
-
-                <Button
-                    android:id="@+id/timeSlot430"
-                    android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_margin="3dp"
-                    android:layout_weight="1"
-                    android:backgroundTint="#F3F4F6"
-                    android:text="@string/time_4_30_pm"
-                    android:textColor="#374151"
-                    android:textSize="12sp"
-                    style="?android:attr/buttonBarButtonStyle" />
-            </LinearLayout>
+                android:layout_marginTop="16dp"
+                android:columnCount="4"
+                android:padding="8dp"
+                android:useDefaultMargins="true"
+                android:alignmentMode="alignBounds"
+                android:columnOrderPreserved="false"
+            />
 
             <TextView
                 android:id="@+id/tvSelectedTime"

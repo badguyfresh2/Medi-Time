@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F4F6FA"
+    android:orientation="vertical">
+
+    <!-- ── Toolbar ──────────────────────────────────────────────────────── -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="#FFFFFF"
+        android:elevation="4dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_centerVertical="true"
+            android:padding="6dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="#2D3436" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Checkout"
+            android:textColor="#1A2C3E"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- ── Appointment Summary Card ────────────────────────────── -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:text="Appointment Summary"
+                        android:textColor="#1A2C3E"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <!-- Doctor name -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+                        <TextView android:layout_width="20dp" android:layout_height="wrap_content"
+                            android:text="👨‍⚕️" android:textSize="15sp"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp" android:layout_weight="1"
+                            android:text="Doctor" android:textColor="#6B7280" android:textSize="13sp"/>
+                        <TextView
+                            android:id="@+id/tvCheckoutDoctorName"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:textColor="#1A2C3E" android:textSize="13sp" android:textStyle="bold"/>
+                    </LinearLayout>
+
+                    <!-- Specialization -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+                        <TextView android:layout_width="20dp" android:layout_height="wrap_content"
+                            android:text="🏥" android:textSize="15sp"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp" android:layout_weight="1"
+                            android:text="Specialization" android:textColor="#6B7280" android:textSize="13sp"/>
+                        <TextView
+                            android:id="@+id/tvCheckoutSpec"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:textColor="#1A2C3E" android:textSize="13sp"/>
+                    </LinearLayout>
+
+                    <!-- Hospital -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+                        <TextView android:layout_width="20dp" android:layout_height="wrap_content"
+                            android:text="📍" android:textSize="15sp"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp" android:layout_weight="1"
+                            android:text="Hospital" android:textColor="#6B7280" android:textSize="13sp"/>
+                        <TextView
+                            android:id="@+id/tvCheckoutHospital"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:textColor="#1A2C3E" android:textSize="13sp"/>
+                    </LinearLayout>
+
+                    <!-- Date -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+                        <TextView android:layout_width="20dp" android:layout_height="wrap_content"
+                            android:text="📅" android:textSize="15sp"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp" android:layout_weight="1"
+                            android:text="Date" android:textColor="#6B7280" android:textSize="13sp"/>
+                        <TextView
+                            android:id="@+id/tvCheckoutDate"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:textColor="#1A2C3E" android:textSize="13sp" android:textStyle="bold"/>
+                    </LinearLayout>
+
+                    <!-- Time -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+                        <TextView android:layout_width="20dp" android:layout_height="wrap_content"
+                            android:text="🕐" android:textSize="15sp"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp" android:layout_weight="1"
+                            android:text="Time" android:textColor="#6B7280" android:textSize="13sp"/>
+                        <TextView
+                            android:id="@+id/tvCheckoutTime"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:textColor="#1A2C3E" android:textSize="13sp" android:textStyle="bold"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ── Order Summary Card ──────────────────────────────────── -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:text="Order Summary"
+                        android:textColor="#1A2C3E"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Consultation Fee" android:textColor="#6B7280" android:textSize="14sp"/>
+                        <TextView
+                            android:id="@+id/tvCheckoutConsultFee"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:textColor="#1A2C3E" android:textSize="14sp"/>
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Platform Fee" android:textColor="#6B7280" android:textSize="14sp"/>
+                        <TextView
+                            android:id="@+id/tvCheckoutServiceFee"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:textColor="#1A2C3E" android:textSize="14sp"/>
+                    </RelativeLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp"
+                        android:background="#F3F4F6" android:layout_marginVertical="8dp"/>
+
+                    <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Total" android:textColor="#1A2C3E"
+                            android:textSize="16sp" android:textStyle="bold"/>
+                        <TextView
+                            android:id="@+id/tvCheckoutTotal"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:textColor="#2A5EE8" android:textSize="16sp" android:textStyle="bold"/>
+                    </RelativeLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ── Payment Method Title ────────────────────────────────── -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="Select Payment Method"
+                android:textColor="#1A2C3E"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <!-- MTN Mobile Money -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardPayMTN"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="3dp"
+                app:cardBackgroundColor="#F0FDF4">
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:gravity="center_vertical" android:orientation="horizontal" android:padding="14dp">
+
+                    <TextView android:layout_width="44dp" android:layout_height="44dp"
+                        android:background="#FFD700" android:gravity="center"
+                        android:text="MTN" android:textColor="#1A1A1A"
+                        android:textSize="10sp" android:textStyle="bold"/>
+
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/tvMTNLabel"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="✓  MTN Mobile Money"
+                            android:textColor="#059669" android:textSize="14sp" android:textStyle="bold"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Pay via MTN MoMo" android:textColor="#9CA3AF" android:textSize="12sp"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Airtel Money -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardPayAirtel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:gravity="center_vertical" android:orientation="horizontal" android:padding="14dp">
+
+                    <TextView android:layout_width="44dp" android:layout_height="44dp"
+                        android:background="#EA1B2A" android:gravity="center"
+                        android:text="AIR" android:textColor="#FFFFFF"
+                        android:textSize="10sp" android:textStyle="bold"/>
+
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/tvAirtelLabel"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Airtel Money"
+                            android:textColor="#6B7280" android:textSize="14sp" android:textStyle="bold"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Pay via Airtel Money" android:textColor="#9CA3AF" android:textSize="12sp"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Credit / Debit Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardPayCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:gravity="center_vertical" android:orientation="horizontal" android:padding="14dp">
+
+                    <TextView android:layout_width="44dp" android:layout_height="44dp"
+                        android:background="#E8F0FE" android:gravity="center"
+                        android:text="💳" android:textSize="20sp"/>
+
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/tvCardLabel"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Credit / Debit Card"
+                            android:textColor="#6B7280" android:textSize="14sp" android:textStyle="bold"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Visa, Mastercard" android:textColor="#9CA3AF" android:textSize="12sp"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Pay at Clinic -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardPayCash"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:gravity="center_vertical" android:orientation="horizontal" android:padding="14dp">
+
+                    <TextView android:layout_width="44dp" android:layout_height="44dp"
+                        android:background="#F0FDF4" android:gravity="center"
+                        android:text="🏦" android:textSize="20sp"/>
+
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/tvCashLabel"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Pay at Clinic"
+                            android:textColor="#6B7280" android:textSize="14sp" android:textStyle="bold"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Pay cash on arrival" android:textColor="#9CA3AF" android:textSize="12sp"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ── Phone number input (mobile money) ──────────────────── -->
+            <LinearLayout
+                android:id="@+id/layoutPhoneInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="6dp"
+                    android:text="Mobile Money Phone Number"
+                    android:textColor="#1A2C3E"
+                    android:textSize="13sp"
+                    android:textStyle="bold"/>
+
+                <EditText
+                    android:id="@+id/etPhoneNumber"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/edit_text_bg"
+                    android:hint="e.g. 0771234567"
+                    android:inputType="phone"
+                    android:maxLength="12"
+                    android:padding="12dp"
+                    android:textColor="#1A2C3E"
+                    android:textColorHint="#9CA3AF"
+                    android:textSize="14sp"/>
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- ── Sticky Pay Button ─────────────────────────────────────────────── -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:elevation="10dp"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/btnPay"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:backgroundTint="#2A5EE8"
+            android:text="Pay  UGX 0"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</LinearLayout>

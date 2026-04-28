@@ -14,25 +14,32 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.meditime.model.Reminder;
+
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- * Fully offline reminder screen.
- * All data stored locally in SharedPreferences.
- * Notifications fired by AlarmManager — no internet required.
+ * Reminder screen — fully offline (SharedPreferences + AlarmManager).
+ *
+ * Improvements over original:
+ *  • Tapping a reminder row highlights it GREEN (via updated ReminderAdapter).
+ *  • Checked-in items turn green; the progress bar fills green.
+ *  • An "Edit" action appears for the selected reminder.
+ *  • All alarm logic preserved unchanged.
  */
 public class ReminderActivity extends AppCompatActivity {
 
     private RecyclerView rvReminders;
     private TextView tvEmpty, tvTotal, tvChecked, tvUpcoming, tvProgress;
     private View progressFill, progressRemain;
-    private ProgressBar progressBarContainer;
+    private Button btnEditSelected;
 
     private final List<Reminder> reminders = new ArrayList<>();
     private ReminderAdapter adapter;
 
-    // Picked date/time for new reminder
+    private int selectedAdapterPos = RecyclerView.NO_ID;
+
+    // Picked date/time for new/edit reminder
     private Calendar pickedCal = Calendar.getInstance();
 
     @Override
@@ -44,31 +51,50 @@ public class ReminderActivity extends AppCompatActivity {
         if (btnBack != null) btnBack.setOnClickListener(v -> finish());
 
         Button btnAdd = findViewById(R.id.btnAddAppointment);
-        if (btnAdd != null) btnAdd.setOnClickListener(v -> showAddReminderDialog());
+        if (btnAdd != null) btnAdd.setOnClickListener(v -> showAddReminderDialog(null, -1));
 
-        tvTotal    = findViewById(R.id.tvTotalToday);
-        tvChecked  = findViewById(R.id.tvCheckedIn);
-        tvUpcoming = findViewById(R.id.tvUpcoming);
-        tvProgress = findViewById(R.id.tvProgressText);
-        progressFill   = findViewById(R.id.progressBarCompleted);
-        progressRemain = findViewById(R.id.progressBarRemaining);
-        tvEmpty    = findViewById(R.id.tvReminderEmpty);
-        rvReminders= findViewById(R.id.rvReminders);
+        tvTotal       = findViewById(R.id.tvTotalToday);
+        tvChecked     = findViewById(R.id.tvCheckedIn);
+        tvUpcoming    = findViewById(R.id.tvUpcoming);
+        tvProgress    = findViewById(R.id.tvProgressText);
+        progressFill  = findViewById(R.id.progressBarCompleted);
+        progressRemain= findViewById(R.id.progressBarRemaining);
+        tvEmpty       = findViewById(R.id.tvReminderEmpty);
+        rvReminders   = findViewById(R.id.rvReminders);
+        btnEditSelected = findViewById(R.id.btnEditSelected); // optional floating edit button
 
-        adapter = new ReminderAdapter(reminders,
+        // Build adapter with selection callback (green highlight)
+        adapter = new ReminderAdapter(
+            reminders,
             // check-in toggle
             (reminder, checked) -> {
                 reminder.setCheckedIn(checked);
                 ReminderStore.update(this, reminder);
+                adapter.notifyDataSetChanged();
                 updateSummary();
             },
             // delete
             reminder -> {
-                cancelAlarm(reminder);
-                ReminderStore.delete(this, reminder.getId());
-                reminders.remove(reminder);
-                adapter.notifyDataSetChanged();
-                updateSummary();
+                new AlertDialog.Builder(this)
+                    .setTitle("Delete Reminder")
+                    .setMessage("Delete \"" + reminder.getTitle() + "\"?")
+                    .setPositiveButton("Delete", (d, w) -> {
+                        cancelAlarm(reminder);
+                        ReminderStore.delete(this, reminder.getId());
+                        reminders.remove(reminder);
+                        selectedAdapterPos = RecyclerView.NO_ID;
+                        adapter.notifyDataSetChanged();
+                        updateEditButton();
+                        updateSummary();
+                        showEmpty();
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+            },
+            // selection callback → update edit button
+            pos -> {
+                selectedAdapterPos = pos;
+                updateEditButton();
             }
         );
 
@@ -77,39 +103,61 @@ public class ReminderActivity extends AppCompatActivity {
             rvReminders.setAdapter(adapter);
         }
 
+        if (btnEditSelected != null) {
+            btnEditSelected.setVisibility(View.GONE);
+            btnEditSelected.setOnClickListener(v -> {
+                if (selectedAdapterPos >= 0 && selectedAdapterPos < reminders.size()) {
+                    showAddReminderDialog(reminders.get(selectedAdapterPos), selectedAdapterPos);
+                }
+            });
+        }
+
         loadReminders();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        loadReminders(); // refresh in case returning from add
+        loadReminders();
     }
 
     private void loadReminders() {
         reminders.clear();
         reminders.addAll(ReminderStore.load(this));
         if (adapter != null) adapter.notifyDataSetChanged();
-        if (tvEmpty != null)
-            tvEmpty.setVisibility(reminders.isEmpty() ? View.VISIBLE : View.GONE);
+        showEmpty();
         updateSummary();
     }
 
+    private void showEmpty() {
+        if (tvEmpty != null)
+            tvEmpty.setVisibility(reminders.isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
+    private void updateEditButton() {
+        if (btnEditSelected == null) return;
+        boolean hasSelection = selectedAdapterPos >= 0 && selectedAdapterPos != RecyclerView.NO_ID
+                && selectedAdapterPos < reminders.size();
+        btnEditSelected.setVisibility(hasSelection ? View.VISIBLE : View.GONE);
+    }
+
     private void updateSummary() {
-        int total = reminders.size();
+        int total   = reminders.size();
         int checked = 0;
         for (Reminder r : reminders) if (r.isCheckedIn()) checked++;
         int upcoming = total - checked;
         float pct = total == 0 ? 0 : (checked * 100f / total);
 
-        if (tvTotal != null)    tvTotal.setText(String.valueOf(total));
-        if (tvChecked != null)  tvChecked.setText(String.valueOf(checked));
+        if (tvTotal    != null) tvTotal.setText(String.valueOf(total));
+        if (tvChecked  != null) tvChecked.setText(String.valueOf(checked));
         if (tvUpcoming != null) tvUpcoming.setText(String.valueOf(upcoming));
         if (tvProgress != null) tvProgress.setText(String.format(Locale.getDefault(),
-            "%d%% complete • %d appointment%s left %s",
-            Math.round(pct), upcoming,
-            upcoming == 1 ? "" : "s", upcoming == 0 ? "🎉" : "🗓️"));
+                "%d%% complete • %d appointment%s left %s",
+                Math.round(pct), upcoming,
+                upcoming == 1 ? "" : "s",
+                upcoming == 0 ? "🎉" : "🗓️"));
 
+        // Green progress bar fill
         if (progressFill != null && progressRemain != null) {
             LinearLayout.LayoutParams pfp = (LinearLayout.LayoutParams) progressFill.getLayoutParams();
             LinearLayout.LayoutParams prp = (LinearLayout.LayoutParams) progressRemain.getLayoutParams();
@@ -117,75 +165,107 @@ public class ReminderActivity extends AppCompatActivity {
             prp.weight = 100 - Math.round(pct);
             progressFill.setLayoutParams(pfp);
             progressRemain.setLayoutParams(prp);
+            progressFill.setBackgroundColor(0xFF10B981);   // green fill
+            progressRemain.setBackgroundColor(0xFFE5E7EB); // gray remainder
         }
     }
 
-    // ── Add reminder dialog ──────────────────────────────────────────────────
-    private void showAddReminderDialog() {
+    // ── Add / Edit dialog ──────────────────────────────────────────────────────
+
+    private void showAddReminderDialog(Reminder existing, int position) {
+        boolean isEdit = (existing != null);
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_reminder, null);
+
         EditText etTitle = dialogView.findViewById(R.id.etReminderTitle);
         EditText etNote  = dialogView.findViewById(R.id.etReminderNote);
         Button   btnDate = dialogView.findViewById(R.id.btnPickDate);
         Button   btnTime = dialogView.findViewById(R.id.btnPickTime);
 
         pickedCal = Calendar.getInstance();
-        pickedCal.add(Calendar.HOUR_OF_DAY, 1);
+        if (isEdit && existing.getAlarmMillis() > 0) {
+            pickedCal.setTimeInMillis(existing.getAlarmMillis());
+        } else {
+            pickedCal.add(Calendar.HOUR_OF_DAY, 1);
+        }
+
+        if (isEdit) {
+            if (etTitle != null) etTitle.setText(existing.getTitle());
+            if (etNote  != null) etNote.setText(existing.getNote());
+        }
 
         updateDateTimeButtons(btnDate, btnTime);
 
-        btnDate.setOnClickListener(v -> {
+        if (btnDate != null) btnDate.setOnClickListener(v ->
             new DatePickerDialog(this, (dp, y, m, d) -> {
                 pickedCal.set(y, m, d);
                 updateDateTimeButtons(btnDate, btnTime);
             }, pickedCal.get(Calendar.YEAR),
                pickedCal.get(Calendar.MONTH),
-               pickedCal.get(Calendar.DAY_OF_MONTH)).show();
-        });
+               pickedCal.get(Calendar.DAY_OF_MONTH)).show());
 
-        btnTime.setOnClickListener(v -> {
+        if (btnTime != null) btnTime.setOnClickListener(v ->
             new TimePickerDialog(this, (tp, h, min) -> {
                 pickedCal.set(Calendar.HOUR_OF_DAY, h);
                 pickedCal.set(Calendar.MINUTE, min);
                 pickedCal.set(Calendar.SECOND, 0);
                 updateDateTimeButtons(btnDate, btnTime);
             }, pickedCal.get(Calendar.HOUR_OF_DAY),
-               pickedCal.get(Calendar.MINUTE), false).show();
-        });
+               pickedCal.get(Calendar.MINUTE), false).show());
 
         new AlertDialog.Builder(this)
-            .setTitle("New Appointment Reminder")
+            .setTitle(isEdit ? "Edit Reminder" : "New Appointment Reminder")
             .setView(dialogView)
-            .setPositiveButton("Set Reminder", (dlg, w) -> {
-                String title = etTitle.getText().toString().trim();
-                String note  = etNote.getText().toString().trim();
+            .setPositiveButton(isEdit ? "Save Changes" : "Set Reminder", (dlg, w) -> {
+                String title = etTitle != null ? etTitle.getText().toString().trim() : "";
+                String note  = etNote  != null ? etNote.getText().toString().trim()  : "";
                 if (title.isEmpty()) {
                     Toast.makeText(this, "Please enter a title", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 String dateLabel = new SimpleDateFormat("EEE dd MMM", Locale.getDefault())
-                    .format(pickedCal.getTime());
+                        .format(pickedCal.getTime());
                 String timeLabel = new SimpleDateFormat("hh:mm a", Locale.getDefault())
-                    .format(pickedCal.getTime());
+                        .format(pickedCal.getTime());
 
-                Reminder r = ReminderStore.add(this, title, note,
-                    dateLabel, timeLabel, pickedCal.getTimeInMillis());
-                scheduleAlarm(r);
-                loadReminders();
-                Toast.makeText(this, "Reminder set for " + timeLabel + " on " + dateLabel,
-                    Toast.LENGTH_LONG).show();
+                if (isEdit) {
+                    cancelAlarm(existing);
+                    existing.setTitle(title);
+                    existing.setNote(note);
+                    existing.setDateLabel(dateLabel);
+                    existing.setTimeLabel(timeLabel);
+                    existing.setAlarmMillis(pickedCal.getTimeInMillis());
+                    ReminderStore.update(this, existing);
+                    scheduleAlarm(existing);
+                    adapter.notifyItemChanged(position);
+                    Toast.makeText(this, "Reminder updated", Toast.LENGTH_SHORT).show();
+                } else {
+                    Reminder r = ReminderStore.add(this, title, note,
+                            dateLabel, timeLabel, pickedCal.getTimeInMillis());
+                    scheduleAlarm(r);
+                    loadReminders();
+                    // Auto-select new first item to show green feedback
+                    adapter.setSelectedPosition(0);
+                    Toast.makeText(this,
+                            "✅ Reminder set for " + timeLabel + " on " + dateLabel,
+                            Toast.LENGTH_LONG).show();
+                }
+                updateSummary();
             })
             .setNegativeButton("Cancel", null)
             .show();
     }
 
     private void updateDateTimeButtons(Button btnDate, Button btnTime) {
-        btnDate.setText(new SimpleDateFormat("EEE, dd MMM yyyy", Locale.getDefault())
-            .format(pickedCal.getTime()));
-        btnTime.setText(new SimpleDateFormat("hh:mm a", Locale.getDefault())
-            .format(pickedCal.getTime()));
+        if (btnDate != null) btnDate.setText(
+                new SimpleDateFormat("EEE, dd MMM yyyy", Locale.getDefault())
+                        .format(pickedCal.getTime()));
+        if (btnTime != null) btnTime.setText(
+                new SimpleDateFormat("hh:mm a", Locale.getDefault())
+                        .format(pickedCal.getTime()));
     }
 
-    // ── AlarmManager scheduling ──────────────────────────────────────────────
+    // ── AlarmManager ─────────────────────────────────────────────────────────
+
     private void scheduleAlarm(Reminder r) {
         if (r.getAlarmMillis() <= System.currentTimeMillis()) return;
 
@@ -194,26 +274,25 @@ public class ReminderActivity extends AppCompatActivity {
         intent.putExtra(ReminderAlarmReceiver.EXTRA_NOTE,  r.getNote());
 
         PendingIntent pi = PendingIntent.getBroadcast(this,
-            r.getId().hashCode(), intent,
-            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                r.getId().hashCode(), intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        if (am != null) {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S
-                    && !am.canScheduleExactAlarms()) {
-                // Fallback to inexact alarm (still works)
-                am.set(AlarmManager.RTC_WAKEUP, r.getAlarmMillis(), pi);
-            } else {
-                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, r.getAlarmMillis(), pi);
-            }
+        if (am == null) return;
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S
+                && !am.canScheduleExactAlarms()) {
+            am.set(AlarmManager.RTC_WAKEUP, r.getAlarmMillis(), pi);
+        } else {
+            am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, r.getAlarmMillis(), pi);
         }
     }
 
     private void cancelAlarm(Reminder r) {
         Intent intent = new Intent(this, ReminderAlarmReceiver.class);
         PendingIntent pi = PendingIntent.getBroadcast(this,
-            r.getId().hashCode(), intent,
-            PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE);
+                r.getId().hashCode(), intent,
+                PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE);
         if (pi != null) {
             AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             if (am != null) am.cancel(pi);

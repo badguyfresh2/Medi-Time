@@ -12,6 +12,12 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -44,5 +50,25 @@ public class MainActivity extends AppCompatActivity {
         signinText.setOnClickListener(v -> startActivity( new Intent( MainActivity.this, LoginActivity.class)));
 
 
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            // redirect to home and finish immediately
+            FirebaseDatabase.getInstance().getReference("users").child(user.getUid())
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot snap) {
+                            Intent intent;
+                            if (snap.exists() && "doctor".equals(snap.child("role").getValue(String.class)))
+                                intent = new Intent(MainActivity.this, DoctorHomeActivity.class);
+                            else
+                                intent = new Intent(MainActivity.this, HomeActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                            finish();
+                        }
+                        @Override public void onCancelled(DatabaseError e) { finish(); }
+                    });
+            return; // stop normal onCreate
+        }
     }
 }

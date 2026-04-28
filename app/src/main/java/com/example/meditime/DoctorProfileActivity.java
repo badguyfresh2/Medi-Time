@@ -10,7 +10,7 @@ import com.bumptech.glide.Glide;
 import com.example.meditime.model.Doctor;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
-import java.io.File;
+
 import java.util.Locale;
 
 public class DoctorProfileActivity extends AppCompatActivity {
@@ -29,9 +29,11 @@ public class DoctorProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_doctor_profile);
 
-        dbRef = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
         doctorId = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : "";
+        if (!doctorId.isEmpty()) {
+            dbRef = FirebaseDatabase.getInstance().getReference("doctors").child(doctorId);
+        }
 
         tvName       = findViewById(R.id.tvDoctorName);
         tvSpec       = findViewById(R.id.tvSpecialization);
@@ -50,7 +52,7 @@ public class DoctorProfileActivity extends AppCompatActivity {
 
         Button btnEdit = findViewById(R.id.btn_edit_profile);
         if (btnEdit != null) btnEdit.setOnClickListener(v ->
-                startActivity(new Intent(this, EditDoctorProfileActivity.class)));
+            startActivity(new Intent(this, EditDoctorProfileActivity.class)));
 
         TextView btnLogout = findViewById(R.id.btn_logout);
         if (btnLogout != null) {
@@ -62,6 +64,7 @@ public class DoctorProfileActivity extends AppCompatActivity {
             });
         }
 
+        // Bottom nav
         LinearLayout navHome         = findViewById(R.id.nav_home);
         LinearLayout navAppointments = findViewById(R.id.nav_appointments);
         LinearLayout navPatients     = findViewById(R.id.nav_patients);
@@ -71,8 +74,8 @@ public class DoctorProfileActivity extends AppCompatActivity {
 
         if (switchAvailable != null) {
             switchAvailable.setOnCheckedChangeListener((btn, checked) -> {
-                if (!doctorId.isEmpty())
-                    dbRef.child("doctors").child(doctorId).child("available").setValue(checked);
+                if (!doctorId.isEmpty() && dbRef != null)
+                    dbRef.child("available").setValue(checked);
             });
         }
 
@@ -80,14 +83,13 @@ public class DoctorProfileActivity extends AppCompatActivity {
     }
 
     private void loadDoctorProfile() {
-        if (doctorId.isEmpty()) return;
+        if (doctorId.isEmpty() || dbRef == null) return;
 
-        listener = new ValueEventListener() {
+        listener = dbRef.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot doc) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (progressBar != null) progressBar.setVisibility(View.GONE);
-                if (!doc.exists()) return;
-                Doctor d = doc.getValue(Doctor.class);
+                Doctor d = snapshot.getValue(Doctor.class);
                 if (d == null) return;
 
                 if (tvName != null)       tvName.setText("Dr. " + (d.getName() != null ? d.getName() : ""));
@@ -101,22 +103,21 @@ public class DoctorProfileActivity extends AppCompatActivity {
                 if (tvExperience != null) tvExperience.setText(d.getExperience() + " years");
                 if (switchAvailable != null) switchAvailable.setChecked(d.isAvailable());
                 if (imgProfile != null && d.getProfileImageUrl() != null && !d.getProfileImageUrl().isEmpty())
-                    Glide.with(DoctorProfileActivity.this).load(new File(d.getProfileImageUrl())).circleCrop().into(imgProfile);
+                    Glide.with(DoctorProfileActivity.this).load(d.getProfileImageUrl()).circleCrop().into(imgProfile);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 if (progressBar != null) progressBar.setVisibility(View.GONE);
             }
-        };
-
-        dbRef.child("doctors").child(doctorId).addValueEventListener(listener);
+        });
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (listener != null && doctorId != null)
-            dbRef.child("doctors").child(doctorId).removeEventListener(listener);
+        if (listener != null && dbRef != null) {
+            dbRef.removeEventListener(listener);
+        }
     }
 }
